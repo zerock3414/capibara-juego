@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para ti 🐍❤️</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fbeee0;
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+    }
+    canvas {
+      background: #fff;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #ddd;
+      max-width: 90vw;
+      height: auto;
+    }
+    #mensajeFinal {
+      display: none;
+      margin-top: 20px;
+    }
+    #mensajeFinal img {
+      width: 150px;
+    }
+    #mensajeFinal p {
+      font-size: 20px;
+      color: #aa4a44;
+      font-weight: bold;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+      gap: 10px;
+    }
+    .btn-control {
+      font-size: 20px;
+      padding: 10px 20px;
+      background-color: #ff7675;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Juega un ratito 💕</h1>
+  <canvas id="game" width="400" height="400"></canvas>
+
+  <div class="controls">
+    <button class="btn-control" onclick="setDirection('UP')">⬆️</button>
+    <div>
+      <button class="btn-control" onclick="setDirection('LEFT')">⬅️</button>
+      <button class="btn-control" onclick="setDirection('DOWN')">⬇️</button>
+      <button class="btn-control" onclick="setDirection('RIGHT')">➡️</button>
+    </div>
+  </div>
+
+  <div id="mensajeFinal">
+    <img src="cute-enamored-capybara-with-heart-png.png" alt="Capibara tierna">
+    <p>No llores más, si hay una persona que te quiere muchu muchito... de aquí al infinito 💗</p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const box = 20;
+    let snake = [{ x: 9 * box, y: 10 * box }];
+    let direction = null;
+    let food = generateFood();
+    let score = 0;
+    let game;
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+      else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    });
+
+    function setDirection(dir) {
+      if (dir === "LEFT" && direction !== "RIGHT") direction = "LEFT";
+      else if (dir === "UP" && direction !== "DOWN") direction = "UP";
+      else if (dir === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
+      else if (dir === "DOWN" && direction !== "UP") direction = "DOWN";
+    }
+
+    function generateFood() {
+      return {
+        x: Math.floor(Math.random() * 20) * box,
+        y: Math.floor(Math.random() * 20) * box,
+      };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? "#6c5ce7" : "#a29bfe";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+
+      ctx.fillStyle = "#ff7675";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let headX = snake[0].x;
+      let headY = snake[0].y;
+
+      if (direction === "LEFT") headX -= box;
+      if (direction === "UP") headY -= box;
+      if (direction === "RIGHT") headX += box;
+      if (direction === "DOWN") headY += box;
+
+      if (headX === food.x && headY === food.y) {
+        score++;
+        food = generateFood();
+      } else {
+        snake.pop();
+      }
+
+      const newHead = { x: headX, y: headY };
+
+      if (
+        headX < 0 || headX >= canvas.width ||
+        headY < 0 || headY >= canvas.height ||
+        collision(newHead, snake)
+      ) {
+        clearInterval(game);
+        alert("Perdiste 😢");
+      }
+
+      snake.unshift(newHead);
+
+      if (score === 5) {
+        clearInterval(game);
+        document.getElementById("mensajeFinal").style.display = "block";
+      }
+    }
+
+    function collision(head, array) {
+      return array.some(seg => seg.x === head.x && seg.y === head.y);
+    }
+
+    game = setInterval(draw, 150);
+  </script>
+</body>
+</html>
